@@ -1,6 +1,6 @@
 {
   "name": "@object-shake/vue",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.3",
   "main": "src/index.ts",
   "type": "module",
   "repository": {
@@ -9,7 +9,7 @@
   },
   "scripts": {
     "build": "unbuild",
-    "publish": "npm publish --access public"
+    "publish": "npm publish --access public --no-git-checks"
   },
   "files": [
     "dist"
