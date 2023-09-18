@@ -1,0 +1,24 @@
+{
+  "private": false,
+  "name": "@object-shake/vue",
+  "version": "1.0.0-alpha.1",
+  "main": "src/index.ts",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/undermoonn/object-shake"
+  },
+  "scripts": {
+    "build": "unbuild"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@object-shake/core": "workspace:*",
+    "@vue/reactivity": "^3"
+  }
+}
