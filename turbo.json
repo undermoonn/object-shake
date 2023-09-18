@@ -5,6 +5,11 @@
       "dependsOn": ["^build"],
       "cache": false,
       "outputs": ["dist/**", "es/**", "types/**"]
+    },
+    "publish": {
+      "dependsOn": ["^build"],
+      "cache": false,
+      "outputs": []
     }
   }
 }
