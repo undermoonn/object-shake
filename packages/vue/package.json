@@ -1,6 +1,6 @@
 {
   "name": "@object-shake/vue",
-  "version": "1.0.0-alpha.4",
+  "version": "1.0.0",
   "main": "src/index.ts",
   "type": "module",
   "repository": {
