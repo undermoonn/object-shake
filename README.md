@@ -26,24 +26,24 @@ console.log(shakedTarget) // { a: { b: { c: 1 } }, f: 4 }
 
 #### - `Vue3`
 
-```html
+```vue
 <script setup>
-  import { ref, onMounted } from 'vue'
-  import { reactiveShake } from '@object-shake/vue'
+import { ref, onMounted } from 'vue'
+import { reactiveShake } from '@object-shake/vue'
 
-  const target = ref({
-    a: {
-      b: { c: 1, d: 2 },
-      e: 3
-    },
-    f: 4
-  })
+const target = ref({
+  a: {
+    b: { c: 1, d: 2 },
+    e: 3
+  },
+  f: 4
+})
 
-  const [proxyTarget, shakedTarget] = shake(target)
+const [proxyTarget, shakedTarget] = reactiveShake(target)
 
-  onMounted(() => {
-    console.log(shakedTarget) // { a: { b: { c: 1 } }, f: 4 }
-  })
+onMounted(() => {
+  console.log(shakedTarget) // { a: { b: { c: 1 } }, f: 4 }
+})
 </script>
 
 <template>
