@@ -1,8 +1,16 @@
 {
   "name": "@object-shake/vue",
   "version": "1.0.1",
-  "main": "src/index.ts",
-  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/undermoonn/object-shake"
