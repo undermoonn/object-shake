@@ -54,7 +54,7 @@ function getShaked<T extends object>(target: T, options: ShakeOptions, res: T): 
     if (typeof cached !== 'undefined' && cached.indexOf(key) > -1) {
       const value = Reflect.get(target, key)
       if (typeof value === 'object' && value !== null) {
-        Reflect.set(res, key, getShaked(value, options, {}))
+        Reflect.set(res, key, getShaked(value, options, Array.isArray(value) ? [] : {}))
       } else {
         Reflect.set(res, key, value)
       }

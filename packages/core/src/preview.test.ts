@@ -38,4 +38,10 @@ describe('[preview core] value test', () => {
     p.a
     expect(s()).toEqual({ a: undefined })
   })
+
+  test('array value', () => {
+    const [p, s] = shake({ a: { b: [1] } })
+    p.a.b[0]
+    expect(s()).toEqual({ a: { b: [1] } })
+  })
 })
