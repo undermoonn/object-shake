@@ -93,16 +93,15 @@ function walk<T extends object>(
 function deepSet<T extends object>(target: T, keyPath: KeyPath, value: any): T {
   let t: any = target
 
-  keyPath.forEach((key, idx) => {
-    if (idx === keyPath.length - 1) {
-      Reflect.set(t, key, value)
-      return
-    }
+  for (let idx = 0; idx < keyPath.length - 1; idx++) {
+    const key = keyPath[idx]
     if (typeof t[key] === 'undefined') {
-      Reflect.set(t, key, {})
+      t[key] = {}
     }
     t = t[key]
-  })
+  }
+
+  Reflect.set(t, keyPath[keyPath.length - 1], value)
 
   return target
 }
