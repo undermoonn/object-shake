@@ -1,108 +1,72 @@
-export { shakePreviewVersion } from './preview'
-export interface PublicWalkOptions<T extends object> {
-  onKeySet?: (parentDeepKeyPath: KeyPath) => KeyPath | false
-
-  collectSymbolKey?: boolean
-}
-
-interface PrivateWalkOptions<T extends object> extends PublicWalkOptions<T> {
-  /** ProxyHandler target */
-  target: object
-
-  /** ProxyHandler key */
-  key: string | symbol
-
-  /** ProxyHandler receiver */
-  receiver: object
-
-  parentDeepKeyPath: KeyPath
-
-  rootReceiver: T
-}
-
-export interface ShakeOptions<T extends object> {
-  walkOptions?: PublicWalkOptions<T>
+export interface ShakeOptions {
+  keyValidate?: (key: Key) => boolean
 }
 
 type Key = string | symbol
-type KeyPath = Key[]
 
-export function shake<T extends object>(target: T, options?: ShakeOptions<T>): [T, T] {
-  const shaked: T = Object.create(null)
+const cache = new WeakMap<object, Key[]>()
 
-  const proxy = new Proxy(target, {
-    get(target, key, receiver) {
-      return walk({
-        target,
-        key,
-        receiver,
-
-        parentDeepKeyPath: [],
-        rootReceiver: shaked,
-
-        ...options?.walkOptions
-      })
+const handlers: Pick<ProxyHandler<any>, 'get'> = {
+  get(target, key, receiver) {
+    const value = Reflect.get(target, key, receiver)
+    cacheReachedKey(target, key)
+    if (typeof value === 'object' && value !== null) {
+      return new Proxy(value, handlers)
     }
-  })
-
-  return [proxy, shaked]
+    return value
+  }
 }
 
-function walk<T extends object>(
-  options: PrivateWalkOptions<T>
-): object | string | null | undefined {
-  const { target, key, receiver, parentDeepKeyPath, rootReceiver, ...otherOptions } = options
-
-  if (typeof key === 'symbol') {
-    if (options.collectSymbolKey) {
-      //
-    } else {
-      return undefined
+export function shake<T extends object>(target: T, options?: ShakeOptions): [T, () => T] {
+  const proxy = new Proxy(target, handlers)
+  return [
+    proxy,
+    () => {
+      return getShaked<T>(target, options || {}, {} as T)
     }
-  }
+  ]
+}
 
-  const currentDeepKeyPath = [...parentDeepKeyPath, key]
-  const value = Reflect.get(target, key, receiver)
-
-  if (typeof value === 'object' && value !== null) {
-    return new Proxy(value, {
-      get(target, key, receiver) {
-        return walk<T>({
-          target,
-          key,
-          receiver,
-          parentDeepKeyPath: currentDeepKeyPath,
-          rootReceiver,
-          ...otherOptions
-        })
-      }
-    })
-  }
-
-  if (options.onKeySet) {
-    const filteredKeyPath = options.onKeySet(currentDeepKeyPath)
-    if (filteredKeyPath) {
-      deepSet(rootReceiver, filteredKeyPath, value)
+function cacheReachedKey(target: object, key: Key) {
+  if (cache.get(target)?.length) {
+    if ((cache.get(target) as Key[]).indexOf(key) === -1) {
+      ;(cache.get(target) as Key[]).push(key)
     }
   } else {
-    deepSet(rootReceiver, currentDeepKeyPath, value)
+    cache.set(target, [key])
   }
-
-  return value
 }
 
-function deepSet<T extends object>(target: T, keyPath: KeyPath, value: any): T {
-  let t: any = target
-
-  for (let idx = 0; idx < keyPath.length - 1; idx++) {
-    const key = keyPath[idx]
-    if (typeof t[key] === 'undefined') {
-      t[key] = {}
+function getShaked<T extends object>(target: T, options: ShakeOptions, res: T): T {
+  const keys = Object.keys(target)
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i]
+    if (typeof options.keyValidate === 'function' && !options.keyValidate(key)) {
+      continue
     }
-    t = t[key]
+    if (typeof key === 'symbol') {
+      continue
+    }
+    const cached = cache.get(target)
+    if (typeof cached !== 'undefined' && cached.indexOf(key) > -1) {
+      const value = Reflect.get(target, key)
+      if (typeof value === 'object' && value !== null) {
+        if (Array.isArray(value)) {
+          // FIXME: type error
+          const r = getShaked(value, options, [] as any)
+          if (r.length > 0) {
+            Reflect.set(res, key, r)
+          }
+        } else {
+          const r = getShaked(value, options, {})
+          if (Object.keys(r).length > 0) {
+            Reflect.set(res, key, r)
+          }
+        }
+      } else {
+        Reflect.set(res, key, value)
+      }
+    }
   }
-
-  Reflect.set(t, keyPath[keyPath.length - 1], value)
-
-  return target
+  return res
 }
