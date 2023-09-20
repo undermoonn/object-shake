@@ -15,7 +15,7 @@ describe('[preview core] key test', () => {
     const key = Symbol()
     const [p, s] = shake({ a: { [key]: 1 }, c: 2 })
     p.a[key]
-    expect(s()).toEqual({ a: {} })
+    expect(s()).toEqual({})
   })
 })
 
