@@ -11,10 +11,10 @@ const target = ref({
   f: 4
 })
 
-const [proxyTarget, shakedTarget] = reactiveShake(target)
+const [proxyTarget, getShakedTarget] = reactiveShake(target)
 
 onMounted(() => {
-  console.log(shakedTarget) // { a: { b: { c: 1 } }, f: 4 }
+  console.log(getShakedTarget()) // { a: { b: { c: 1 } }, f: 4 }
 })
 </script>
 

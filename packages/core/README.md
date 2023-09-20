@@ -9,11 +9,11 @@ const target = {
   f: 4
 }
 
-const [proxyTarget, shakedTarget] = shake(target)
+const [proxyTarget, getShakedTarget] = shake(target)
 
 proxyTarget.a.b.c
-console.log(shakedTarget) // { a: { b: { c: 1 } } }
+console.log(getShakedTarget()) // { a: { b: { c: 1 } } }
 
 proxyTarget.f
-console.log(shakedTarget) // { a: { b: { c: 1 } }, f: 4 }
+console.log(getShakedTarget()) // { a: { b: { c: 1 } }, f: 4 }
 ```
