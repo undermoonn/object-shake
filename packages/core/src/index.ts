@@ -1,3 +1,4 @@
+export { shakePreviewVersion } from './preview'
 export interface PublicWalkOptions<T extends object> {
   onKeySet?: (parentDeepKeyPath: KeyPath) => KeyPath | false
 
