@@ -1,8 +1,8 @@
+type Key = string | symbol
+
 export interface ShakeOptions {
   keyValidate?: (key: Key) => boolean
 }
-
-type Key = string | symbol
 
 const cache = new WeakMap<object, Key[]>()
 
@@ -22,7 +22,8 @@ export function shake<T extends object>(target: T, options?: ShakeOptions): [T, 
   return [
     proxy,
     () => {
-      return getShaked<T>(target, options || {}, {} as T)
+      const initial = (Array.isArray(target) ? [] : {}) as T
+      return getShaked<T>(target, options || {}, initial)
     }
   ]
 }
@@ -52,7 +53,6 @@ function getShaked<T extends object>(target: T, options: ShakeOptions, res: T): 
       const value = Reflect.get(target, key)
       if (typeof value === 'object' && value !== null) {
         if (Array.isArray(value)) {
-          // FIXME: type error
           const r = getShaked(value, options, [] as any)
           if (r.length > 0) {
             Reflect.set(res, key, r)
