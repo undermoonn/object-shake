@@ -1,6 +1,7 @@
 {
   "name": "@object-shake/core",
-  "version": "1.3.0",
+  "version": "1.4.0",
+  "description": "Shake object unused properties",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
