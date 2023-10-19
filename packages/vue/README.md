@@ -1,7 +1,7 @@
 ```vue
 <script setup>
 import { ref, onMounted } from 'vue'
-import { reactiveShake } from '@object-shake/vue'
+import { shakeMaybeRef } from '@object-shake/vue'
 
 const target = ref({
   a: {
@@ -11,17 +11,17 @@ const target = ref({
   f: 4
 })
 
-const [proxyTarget, getShakedTarget] = reactiveShake(target)
+const [proxy, getShaked] = shakeMaybeRef(target)
 
 onMounted(() => {
-  console.log(getShakedTarget()) // { a: { b: { c: 1 } }, f: 4 }
+  console.log(getShaked()) // { a: { b: { c: 1 } }, f: 4 }
 })
 </script>
 
 <template>
   <div>
-    <span>{{ proxyTarget.a.b.c }}</span>
-    <span>{{ proxyTarget.f }}</span>
+    <span>{{ proxy.a.b.c }}</span>
+    <span>{{ proxy.f }}</span>
   </div>
 </template>
 ```
