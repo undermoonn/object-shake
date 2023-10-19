@@ -1,5 +1,5 @@
 {
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Shake object unused properties",
   "type": "module",
   "scripts": {
