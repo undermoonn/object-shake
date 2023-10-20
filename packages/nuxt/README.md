@@ -1,3 +1,9 @@
+🚧 This package is under development.
+So it may not work well.
+Still got some problems about import nuxt componsitions.
+
+---
+
 ```vue
 <script setup>
 import { useStateShake } from '@object-shake/nuxt'
