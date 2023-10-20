@@ -1,6 +1,6 @@
 {
   "name": "@object-shake/nuxt",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "Shake object unused properties with compositions in Nuxt3",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",

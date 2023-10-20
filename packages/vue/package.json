@@ -1,6 +1,6 @@
 {
   "name": "@object-shake/vue",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "Shake object unused properties in Vue3",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
