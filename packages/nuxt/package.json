@@ -1,7 +1,7 @@
 {
-  "name": "@object-shake/core",
+  "name": "@object-shake/nuxt",
   "version": "1.5.0",
-  "description": "Shake object unused properties",
+  "description": "Shake object unused properties with compositions in Nuxt3",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -24,5 +24,11 @@
   ],
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@object-shake/core": "workspace:*",
+    "@object-shake/vue": "workspace:*",
+    "@vue/reactivity": "^3",
+    "nuxt": "^3"
+  }
 }

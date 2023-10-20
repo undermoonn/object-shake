@@ -17,6 +17,54 @@ const handlers: Pick<ProxyHandler<any>, 'get'> = {
   }
 }
 
+/**
+ *  @example
+ * ```js
+ * const [proxy, getShaked] = shake({ a: { b: 1 }})
+ * proxy.a
+ * console.log(getShaked()) // {}
+ * proxy.a.b
+ * console.log(getShaked()) // { a: { b: 1 }}
+ * ```
+ *
+ * ---
+ *
+ * @example
+ * ```js
+ * const [proxy, getShaked] = shake({ a: [1, 2, 3] })
+ * proxy.a
+ * console.log(getShaked()) // {}
+ * proxy.a[0]
+ * console.log(getShaked()) // { a: [1] }
+ * ```
+ *
+ * ---
+ *
+ * @example
+ * ```js
+ * const [proxy, getShaked] = shake({ a: [1, 2, 3] })
+ * proxy.a.slice(1)
+ * console.log(getShaked()) // { a: [undefined, 2, 3] }
+ * ```
+ *
+ * ---
+ *
+ * @example
+ * ```js
+ * const [proxy, getShaked] = shake({ a: [1, 2, 3] })
+ * proxy.a.findIndex(item => item === 2)
+ * console.log(getShaked()) // { a: [1, 2] }
+ * ```
+ *
+ * ---
+ *
+ * @example
+ * ```js
+ * const [proxy, getShaked] = shake({ a: [1, 2, 3] })
+ * proxy.a.length
+ * console.log(getShaked()) // {}
+ * ```
+ */
 export function shake<T extends object>(target: T, options?: ShakeOptions): [T, () => T] {
   const proxy = new Proxy(target, handlers)
   return [
