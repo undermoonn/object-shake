@@ -1,4 +1,5 @@
-import { useNuxtApp } from 'nuxt/dist/app'
+// @ts-ignore
+import { useNuxtApp } from '#app'
 import { shake } from '@object-shake/core'
 import { type _Transform } from 'nuxt/dist/app/composables/asyncData'
 
