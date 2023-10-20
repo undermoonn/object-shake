@@ -1,13 +1,13 @@
-// @ts-ignore
-import { useNuxtApp } from '#app'
 import { shake } from '@object-shake/core'
+import { type NuxtApp } from 'nuxt/dist/app'
 import { type _Transform } from 'nuxt/dist/app/composables/asyncData'
 
 /**
  * @example
  * ```js
  * const key = 'somekey'
- * const { transform } = useAsyncDataShakeTransform(key, true)
+ * const nuxt = useNuxtApp()
+ * const { transform } = useAsyncDataShakeTransform(nuxt, key, true)
  * const { data } = await useAsyncData(
  *   key,
  *   async () => {
@@ -17,7 +17,7 @@ import { type _Transform } from 'nuxt/dist/app/composables/asyncData'
  * )
  * ```
  */
-export function useAsyncDataShakeTransform(key: string, enable: boolean) {
+export function useAsyncDataShakeTransform(nuxt: NuxtApp, key: string, enable: boolean) {
   let getShaked = () => null
 
   const transform: _Transform = (input) => {
@@ -30,7 +30,6 @@ export function useAsyncDataShakeTransform(key: string, enable: boolean) {
   }
 
   if (enable && import.meta.server) {
-    const nuxt = useNuxtApp()
     nuxt.hook('app:rendered', () => {
       nuxt.payload.data[key] = getShaked()
     })

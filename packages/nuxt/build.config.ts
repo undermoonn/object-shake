@@ -8,6 +8,5 @@ export default defineBuildConfig({
       minify: false
     },
     emitCJS: true
-  },
-  failOnWarn: false
+  }
 })
