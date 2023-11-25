@@ -13,13 +13,13 @@ describe('object shake', () => {
     const key = Symbol()
     const [p, s] = shake({ a: { [key]: 1 }, c: 2 })
     p.a[key]
-    expect(s()).toEqual({})
+    expect(s()).toEqual({ a: {} })
   })
 
   test('access object value', () => {
     const [p, s] = shake({ a: { b: 1 } })
     p.a
-    expect(s()).toEqual({})
+    expect(s()).toEqual({ a: {} })
   })
 
   test('use Object.keys and forEach', () => {
@@ -76,13 +76,13 @@ describe('object shake', () => {
   test('use array find', () => {
     const [p, s] = shake({ a: [1, 2, 3, 4] })
     p.a.findIndex((item) => item === 3)
-    expect(s()).toEqual({ a: [1, 2, 3] })
+    expect(s()).toEqual({ a: [1, 2, 3, undefined] })
   })
 
   test('use array findIndex', () => {
     const [p, s] = shake({ a: [1, 2, 3, 4] })
     p.a.findIndex((item) => item === 3)
-    expect(s()).toEqual({ a: [1, 2, 3] })
+    expect(s()).toEqual({ a: [1, 2, 3, undefined] })
   })
 
   test('use array slice', () => {
@@ -100,7 +100,7 @@ describe('object shake', () => {
   test('access array length', () => {
     const [p, s] = shake({ a: [1, 2, 3, 4] })
     p.a.length
-    expect(s()).toEqual({})
+    expect(s()).toEqual({ a: [undefined, undefined, undefined, undefined] })
   })
 
   test('target is array, access array index', () => {

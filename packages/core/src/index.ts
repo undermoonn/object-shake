@@ -4,16 +4,25 @@ export interface ShakeOptions {
   keyValidate?: (key: Key) => boolean
 }
 
-const cache = new WeakMap<object, Key[]>()
+const proxyGetHandlerCache = new WeakMap<object, Key[]>()
+const proxyGetArrayLengthHandlerCache = new WeakMap<object, boolean>()
+const proxyOwnKeysHanlderCache = new WeakMap<object, boolean>()
 
-const handlers: Pick<ProxyHandler<any>, 'get'> = {
+const handlers: Pick<ProxyHandler<any>, 'get' | 'ownKeys'> = {
   get(target, key, receiver) {
     const value = Reflect.get(target, key, receiver)
     cacheReachedKey(target, key)
     if (typeof value === 'object' && value !== null) {
       return new Proxy(value, handlers)
     }
+    if (Array.isArray(target) && key === 'length') {
+      proxyGetArrayLengthHandlerCache.set(target, true)
+    }
     return value
+  },
+  ownKeys(target) {
+    proxyOwnKeysHanlderCache.set(target, true)
+    return Reflect.ownKeys(target)
   }
 }
 
@@ -22,7 +31,7 @@ const handlers: Pick<ProxyHandler<any>, 'get'> = {
  * ```js
  * const [proxy, getShaked] = shake({ a: { b: 1 }})
  * proxy.a
- * console.log(getShaked()) // {}
+ * console.log(getShaked()) // { a: {} }
  * proxy.a.b
  * console.log(getShaked()) // { a: { b: 1 }}
  * ```
@@ -33,7 +42,7 @@ const handlers: Pick<ProxyHandler<any>, 'get'> = {
  * ```js
  * const [proxy, getShaked] = shake({ a: [1, 2, 3] })
  * proxy.a
- * console.log(getShaked()) // {}
+ * console.log(getShaked()) // { a: [] }
  * proxy.a[0]
  * console.log(getShaked()) // { a: [1] }
  * ```
@@ -53,7 +62,7 @@ const handlers: Pick<ProxyHandler<any>, 'get'> = {
  * ```js
  * const [proxy, getShaked] = shake({ a: [1, 2, 3] })
  * proxy.a.findIndex(item => item === 2)
- * console.log(getShaked()) // { a: [1, 2] }
+ * console.log(getShaked()) // { a: [1, 2, undefined] }
  * ```
  *
  * ---
@@ -62,7 +71,7 @@ const handlers: Pick<ProxyHandler<any>, 'get'> = {
  * ```js
  * const [proxy, getShaked] = shake({ a: [1, 2, 3] })
  * proxy.a.length
- * console.log(getShaked()) // {}
+ * console.log(getShaked()) // { a: [undefined, undefined, undefined] }
  * ```
  */
 export function shake<T extends object>(target: T, options?: ShakeOptions): [T, () => T] {
@@ -77,12 +86,12 @@ export function shake<T extends object>(target: T, options?: ShakeOptions): [T, 
 }
 
 function cacheReachedKey(target: object, key: Key) {
-  if (cache.get(target)?.length) {
-    if ((cache.get(target) as Key[]).indexOf(key) === -1) {
-      ;(cache.get(target) as Key[]).push(key)
+  if (proxyGetHandlerCache.get(target)?.length) {
+    if ((proxyGetHandlerCache.get(target) as Key[]).indexOf(key) === -1) {
+      ;(proxyGetHandlerCache.get(target) as Key[]).push(key)
     }
   } else {
-    cache.set(target, [key])
+    proxyGetHandlerCache.set(target, [key])
   }
 }
 
@@ -96,23 +105,39 @@ function getShaked<T extends object>(target: T, options: ShakeOptions, res: T): 
     if (typeof key === 'symbol') {
       continue
     }
-    const cached = cache.get(target)
-    if (typeof cached !== 'undefined' && cached.indexOf(key) > -1) {
-      const value = Reflect.get(target, key)
-      if (typeof value === 'object' && value !== null) {
-        if (Array.isArray(value)) {
-          const r = getShaked(value, options, [] as any)
-          if (r.length > 0) {
-            Reflect.set(res, key, r)
+    const gottenKeys = proxyGetHandlerCache.get(target)
+    if (typeof gottenKeys !== 'undefined' && gottenKeys.indexOf(key) > -1) {
+      const valueOfTargetKey = Reflect.get(target, key)
+      if (typeof valueOfTargetKey === 'object' && valueOfTargetKey !== null) {
+        if (Array.isArray(valueOfTargetKey)) {
+          const r = getShaked(valueOfTargetKey, options, [] as unknown[])
+
+          // For Array length
+          if (proxyGetArrayLengthHandlerCache.get(valueOfTargetKey)) {
+            for (let i = 0; i < valueOfTargetKey.length; i++) {
+              if (r[i] === undefined) {
+                Reflect.set(r, i, undefined)
+              }
+            }
           }
+
+          Reflect.set(res, key, r)
         } else {
-          const r = getShaked(value, options, {})
-          if (Object.keys(r).length > 0) {
-            Reflect.set(res, key, r)
+          const r = getShaked(valueOfTargetKey, options, {})
+
+          // For Object.keys
+          if (proxyOwnKeysHanlderCache.get(valueOfTargetKey)) {
+            Object.keys(valueOfTargetKey).forEach((_key) => {
+              if (Reflect.get(r, _key) === undefined) {
+                Reflect.set(r, _key, undefined)
+              }
+            })
           }
+
+          Reflect.set(res, key, r)
         }
       } else {
-        Reflect.set(res, key, value)
+        Reflect.set(res, key, valueOfTargetKey)
       }
     }
   }
