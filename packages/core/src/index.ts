@@ -85,6 +85,18 @@ export function shake<T extends object>(target: T, options?: ShakeOptions): [T, 
   ]
 }
 
+export function reserve<T extends object>(target: T): void {
+  if (typeof target !== 'object') {
+    return
+  }
+  Object.keys(target).forEach((key) => {
+    const value = Reflect.get(target, key)
+    if (value !== null && typeof value === 'object') {
+      reserve(value)
+    }
+  })
+}
+
 function cacheReachedKey(target: object, key: Key) {
   if (proxyGetHandlerCache.get(target)?.length) {
     if ((proxyGetHandlerCache.get(target) as Key[]).indexOf(key) === -1) {

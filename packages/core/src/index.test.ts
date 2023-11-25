@@ -1,5 +1,5 @@
 import { test, expect, describe } from 'vitest'
-import { shake } from './index'
+import { shake, reserve } from './index'
 
 describe('object shake', () => {
   test('nested object', () => {
@@ -117,5 +117,16 @@ describe('object shake', () => {
     expect(s()).toEqual([])
     p.length
     expect(s()).toEqual([])
+  })
+})
+
+describe('reserve object', () => {
+  test('basic', () => {
+    const [p, s] = shake({ a: { b: 1, c: { d: 3 } }, c: [{ e: 1 }, 2] })
+    expect(s()).toEqual({})
+    reserve(p.a)
+    expect(s()).toStrictEqual({ a: { b: 1, c: { d: 3 } } })
+    reserve(p.c)
+    expect(s()).toStrictEqual({ a: { b: 1, c: { d: 3 } }, c: [{ e: 1 }, 2] })
   })
 })
